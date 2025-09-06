@@ -1,0 +1,8 @@
+{
+  "name": "ConnectSphere - Social App",
+  "description": "A social media application blending features from Weibo, Douyin, and LinkedIn, tailored for Chinese and Japanese users with a focus on rich media (images, videos, live streams) and AI-powered cross-border communication.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
