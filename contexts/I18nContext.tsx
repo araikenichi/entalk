@@ -1,8 +1,12 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
+
+import en from '../locales/en.json';
+import zh from '../locales/zh.json';
+import ja from '../locales/ja.json';
 
 type Locale = 'en' | 'zh' | 'ja';
 type Translations = { [key: string]: string };
-type AllTranslations = { [key in Locale]?: Translations };
+type AllTranslations = { [key in Locale]: Translations };
 
 interface I18nContextType {
   locale: Locale;
@@ -19,34 +23,15 @@ const getInitialLocale = (): Locale => {
   return 'en';
 };
 
+const allTranslations: AllTranslations = { en, zh, ja };
+
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [locale, setLocale] = useState<Locale>(getInitialLocale);
-  const [translations, setTranslations] = useState<AllTranslations>({});
-
-  useEffect(() => {
-    const fetchTranslations = async () => {
-      try {
-        const [en, zh, ja] = await Promise.all([
-          fetch('/locales/en.json').then(res => res.json()),
-          fetch('/locales/zh.json').then(res => res.json()),
-          fetch('/locales/ja.json').then(res => res.json()),
-        ]);
-        setTranslations({ en, zh, ja });
-      } catch (error) {
-        console.error("Failed to load translation files", error);
-      }
-    };
-
-    fetchTranslations();
-  }, []);
 
   const t = useCallback((key: string): string => {
-    const langFile = translations[locale];
-    if (!langFile) {
-        return key; // Fallback to key if language file hasn't loaded
-    }
-    return langFile[key] || key;
-  }, [locale, translations]);
+    const langFile = allTranslations[locale];
+    return langFile?.[key] || key;
+  }, [locale]);
 
   return (
     <I18nContext.Provider value={{ locale, setLocale, t }}>
