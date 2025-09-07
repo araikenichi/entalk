@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
 
   return {
-    base: '/nchat/',
+    base: '/nchat/', // ⭐️ GitHub Pages用のbaseパスを指定！
     plugins: [react()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -19,3 +19,4 @@ export default defineConfig(({ mode }) => {
     },
   }
 })
+
