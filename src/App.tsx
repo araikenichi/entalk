@@ -212,13 +212,23 @@ const MainApp: React.FC<{
 
 // ✅ GitHub Pages表示用に mockUser を使用
 const App: React.FC = () => {
-  const mockUser: User = {
-    id: 'u2',
-    name: 'Li Wei',
-    username: 'liwei88',
-    avatar: '/avatars/u2.png',
-    bio: 'AI enthusiast and social tech lover.',
-  };
+  
+ const mockUser: User = {
+  id: 'u2',
+  name: 'Li Wei',
+  handle: 'liwei88', // ← ✅ 修正：username → handle
+  avatar: '/avatars/u2.png',
+  bio: 'AI enthusiast and social tech lover.',
+  coverImage: '',
+  jobTitle: '',
+  location: '',
+  email: '',
+  tags: [],
+  followingCount: 0,
+  followerCount: 0,
+  postCount: 0,
+};
+
 
   return (
     <I18nProvider>
