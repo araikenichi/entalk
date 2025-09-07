@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ImageIcon, VideoIcon, LiveStreamIcon } from './Icons';
-import { PostType, Media, User } from '../types';
+import { PostType, Media, User } from '../src/types';
 
 interface PostCreatorProps {
   onStartLiveStream: () => void;

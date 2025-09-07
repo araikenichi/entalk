@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Post, User } from '../types';
 import { users } from '../constants';
-import { geminiService } from '../services/geminiService';
-import { StopIcon } from '../components/Icons';
+import { geminiService } from '../../services/geminiService';
+import { StopIcon } from '../../components/Icons';
 
 interface LiveBroadcasterViewProps {
   post: Post;

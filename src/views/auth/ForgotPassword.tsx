@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import AuthLayout from './AuthLayout';
-import { authService } from '../../services/authService';
-import { LoadingIcon } from '../../components/Icons';
-import { useTranslation } from '../../hooks/useTranslation';
+import { authService } from '../../../services/authService';
+import { LoadingIcon } from '../../../components/Icons';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ForgotPasswordProps {
   onLinkSent: () => void;

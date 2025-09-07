@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { authService } from '../../services/authService';
+import { authService } from '../../../services/authService';
 import { User } from '../../types';
 import AuthLayout from './AuthLayout';
-import { EyeIcon, EyeOffIcon, LoadingIcon } from '../../components/Icons';
-import { useTranslation } from '../../hooks/useTranslation';
+import { EyeIcon, EyeOffIcon, LoadingIcon } from '../../../components/Icons';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface LoginProps {
   onLogin: (user: User) => void;

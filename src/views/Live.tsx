@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Post, PostType } from '../types';
-import LiveStreamModal from '../components/LiveStreamModal';
+import LiveStreamModal from '../../components/LiveStreamModal';
 
 interface LiveProps {
   posts: Post[];

@@ -2,7 +2,7 @@
 import React from 'react';
 import AuthLayout from './AuthLayout';
 import { User } from '../../types';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface VerifyEmailProps {
   user: User;

@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import AuthLayout from './AuthLayout';
-import PasswordStrengthIndicator from '../../components/PasswordStrengthIndicator';
-import { EyeIcon, EyeOffIcon } from '../../components/Icons';
-import { useTranslation } from '../../hooks/useTranslation';
+import PasswordStrengthIndicator from '../../../components/PasswordStrengthIndicator';
+import { EyeIcon, EyeOffIcon } from '../../../components/Icons';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ResetPasswordProps {
   onSwitchToLogin: () => void;

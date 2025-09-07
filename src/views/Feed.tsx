@@ -1,6 +1,6 @@
 import React from 'react';
-import PostCreator from '../components/PostCreator';
-import PostCard from '../components/PostCard';
+import PostCreator from '../../components/PostCreator';
+import PostCard from '../../components/PostCard';
 import { Post, PostType, Media, User } from '../types';
 
 interface FeedProps {

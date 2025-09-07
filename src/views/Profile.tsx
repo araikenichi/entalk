@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Post, PostType } from '../types';
-import PostCard from '../components/PostCard';
-import { ChevronLeftIcon, CheckIcon, CameraIcon, LogOutIcon } from '../components/Icons';
+import PostCard from '../../components/PostCard';
+import { ChevronLeftIcon, CheckIcon, CameraIcon, LogOutIcon } from '../../components/Icons';
 
 interface ProfileProps {
   user: User;

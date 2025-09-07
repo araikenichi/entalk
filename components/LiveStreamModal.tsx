@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Post } from '../types';
-import { users } from '../constants';
+import { Post } from '../src/types';
+import { users } from '../src/constants';
 import { geminiService } from '../services/geminiService';
 
 interface LiveStreamModalProps {

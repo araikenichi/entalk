@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useTranslation } from '../../hooks/useTranslation';
-import { SparklesIcon, GlobeIcon, CheckIcon } from '../../components/Icons';
+import { useTranslation } from '../../../hooks/useTranslation';
+import { SparklesIcon, GlobeIcon, CheckIcon } from '../../../components/Icons';
 
 const LanguageSwitcher: React.FC = () => {
   const { locale, setLocale } = useTranslation();

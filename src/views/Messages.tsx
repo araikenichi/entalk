@@ -1,7 +1,7 @@
 import React from 'react';
 import { mockConversations } from '../constants';
 import { Conversation, DirectMessage, User } from '../types';
-import { ChevronLeftIcon, SearchIcon, SendIcon, ImageIcon, VideoIcon, XCircleIcon, PlayIcon } from '../components/Icons';
+import { ChevronLeftIcon, SearchIcon, SendIcon, ImageIcon, VideoIcon, XCircleIcon, PlayIcon } from '../../components/Icons';
 import { format } from 'date-fns';
 
 interface MessagesProps {

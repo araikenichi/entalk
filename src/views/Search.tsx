@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Post, User, Community, Opportunity } from '../types';
-import PostCard from '../components/PostCard';
-import { SearchIcon, CheckIcon } from '../components/Icons';
+import PostCard from '../../components/PostCard';
+import { SearchIcon, CheckIcon } from '../../components/Icons';
 
 const UserCard: React.FC<{
     user: User;

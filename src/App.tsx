@@ -7,10 +7,10 @@ import Network from './views/Network';
 import Messages from './views/Messages';
 import Search from './views/Search';
 import Profile from './views/Profile';
-import BottomNav from './components/BottomNav';
-import LiveStreamSetupModal from './components/LiveStreamSetupModal';
+import BottomNav from '../components/BottomNav';
+import LiveStreamSetupModal from '../components/LiveStreamSetupModal';
 import LiveBroadcasterView from './views/LiveBroadcasterView';
-import { I18nProvider } from './contexts/I18nContext';
+import { I18nProvider } from '../contexts/I18nContext';
 
 const MainApp: React.FC<{
   currentUser: User;

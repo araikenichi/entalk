@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { I18nProvider } from './contexts/I18nContext';
+import { I18nProvider } from '../contexts/I18nContext';
 import { BrowserRouter } from 'react-router-dom'; // ← 追加！
 
 const rootElement = document.getElementById('root');

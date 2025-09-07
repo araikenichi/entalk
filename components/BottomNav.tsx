@@ -1,6 +1,6 @@
 import React from 'react';
 import { HomeIcon, GroupIcon, MessagesIcon, SearchIcon, UserIcon } from './Icons';
-import { ActiveView } from '../types';
+import { ActiveView } from '../src/types';
 
 interface BottomNavProps {
   activeView: ActiveView;

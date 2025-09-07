@@ -6,17 +6,21 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
 
   return {
-    base: '/nchat/', // ⭐️ GitHub Pages用のbaseパスを指定！
+    base: '/nchat/', // GitHub Pages のサブパス
     plugins: [react()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, '.'),
-      },
+     alias: {
+  '@': path.resolve(__dirname, 'src'),
+},
+
+    },
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
     },
   }
 })
-

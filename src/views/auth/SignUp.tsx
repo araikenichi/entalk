@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { authService } from '../../services/authService';
+import { authService } from '../../../services/authService';
 import { User } from '../../types';
 import AuthLayout from './AuthLayout';
-import PasswordStrengthIndicator from '../../components/PasswordStrengthIndicator';
-import { EyeIcon, EyeOffIcon, LoadingIcon, CameraIcon } from '../../components/Icons';
-import { useTranslation } from '../../hooks/useTranslation';
+import PasswordStrengthIndicator from '../../../components/PasswordStrengthIndicator';
+import { EyeIcon, EyeOffIcon, LoadingIcon, CameraIcon } from '../../../components/Icons';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface SignUpProps {
   onSignUpSuccess: (user: User) => void;

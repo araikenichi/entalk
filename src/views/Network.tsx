@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { users, mockCommunities, mockOpportunities } from '../constants';
 import { User, Community, Opportunity } from '../types';
-import { SparklesIcon, GroupIcon, BriefcaseIcon, CheckIcon, MessagesIcon } from '../components/Icons';
+import { SparklesIcon, GroupIcon, BriefcaseIcon, CheckIcon, MessagesIcon } from '../../components/Icons';
 
 interface NetworkProps {
   currentUser: User;

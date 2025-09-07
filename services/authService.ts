@@ -1,5 +1,5 @@
-import { User, SignUpData } from '../types';
-import { users as initialUsers } from '../constants';
+import { User, SignUpData } from '../src/types';
+import { users as initialUsers } from '../src/constants';
 
 const USERS_KEY = 'connectsphere_users';
 const SESSION_KEY = 'connectsphere_session';
