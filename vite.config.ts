@@ -6,17 +6,17 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
 
   return {
-    base: '/entalk/', // GitHub Pages のサブパス
+    // GitHub Pages のサブパス（リポジトリ名）
+    base: '/nchat/',
     plugins: [react()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
     resolve: {
-     alias: {
-  '@': path.resolve(__dirname, 'src'),
-},
-
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+      },
     },
     build: {
       outDir: 'dist',
