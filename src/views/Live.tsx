@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Post, PostType } from '../types';
 import LiveStreamModal from '../../components/LiveStreamModal';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface LiveProps {
   posts: Post[];
 }
 
 const Live: React.FC<LiveProps> = ({ posts }) => {
+  const { t } = useTranslation();
   const livePosts = posts.filter(p => p.type === PostType.Live);
   const [selectedStream, setSelectedStream] = useState<Post | null>(null);
 
@@ -29,7 +31,7 @@ const Live: React.FC<LiveProps> = ({ posts }) => {
               <div className="absolute bottom-2 left-2 text-white">
                 <p className="font-bold">{post.user.name}</p>
                 <p className="text-sm truncate">{post.content}</p>
-                <p className="text-xs">{post.viewers?.toLocaleString()} watching</p>
+                <p className="text-xs">{post.viewers?.toLocaleString()} {t('watching')}</p>
               </div>
             </div>
           </div>

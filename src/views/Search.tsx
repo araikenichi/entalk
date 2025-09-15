@@ -3,13 +3,16 @@ import React, { useState, useMemo } from 'react';
 import { Post, User, Community, Opportunity } from '../types';
 import PostCard from '../../components/PostCard';
 import { SearchIcon, CheckIcon } from '../../components/Icons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const UserCard: React.FC<{
     user: User;
     isFollowed: boolean;
     onFollowToggle: (userId: string) => void;
     onViewProfile: (userId: string) => void;
-}> = ({ user, isFollowed, onFollowToggle, onViewProfile }) => (
+}> = ({ user, isFollowed, onFollowToggle, onViewProfile }) => {
+    const { t } = useTranslation();
+    return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-center text-center">
         <button onClick={() => onViewProfile(user.id)} className="w-20 h-20 rounded-full overflow-hidden">
           <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
@@ -21,16 +24,17 @@ const UserCard: React.FC<{
             {isFollowed ? (
                  <button onClick={() => onFollowToggle(user.id)} className="flex-1 flex items-center justify-center text-sm px-3 py-1.5 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
                     <CheckIcon />
-                    <span className="ml-1">Following</span>
+                    <span className="ml-1">{t('following')}</span>
                 </button>
             ) : (
                 <button onClick={() => onFollowToggle(user.id)} className="flex-1 text-sm px-3 py-1.5 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
-                    Follow
+                    {t('follow')}
                 </button>
             )}
         </div>
     </div>
-);
+    );
+};
 
 const CommunityCard: React.FC<{ community: Community }> = ({ community }) => (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col">
@@ -83,6 +87,7 @@ interface SearchProps {
 type SearchTab = 'all' | 'people' | 'communities' | 'posts' | 'opportunities';
 
 const Search: React.FC<SearchProps> = (props) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<SearchTab>('all');
   
@@ -125,13 +130,13 @@ const Search: React.FC<SearchProps> = (props) => {
         return (
             <div className="p-4">
                 <div className="mb-6">
-                    <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Searches</h3>
+                    <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('recentSearches')}</h3>
                     <div className="flex flex-wrap gap-2">
                         {recentSearches.map(s => <button key={s} onClick={() => setQuery(s)} className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-600">{s}</button>)}
                     </div>
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Trending Topics</h3>
+                    <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('trendingTopics')}</h3>
                     <div className="flex flex-wrap gap-2">
                          {trendingTopics.map(t => <button key={t} onClick={() => setQuery(t)} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900">{t}</button>)}
                     </div>
@@ -202,7 +207,7 @@ const Search: React.FC<SearchProps> = (props) => {
         <div className="relative">
             <input 
                 type="text"
-                placeholder="Search people, posts, communities..."
+                placeholder={t('searchPlaceholder')}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 className="w-full bg-gray-100 dark:bg-gray-800 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

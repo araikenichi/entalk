@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Post, Comment, PostType, User } from '../src/types';
 import { geminiService } from '../services/geminiService';
+import CommentItem from './CommentItem';
+import LikeAnimation from './LikeAnimation';
+import { useTranslation } from '../hooks/useTranslation';
 import { 
   TranslateIcon, 
   LoadingIcon, 
@@ -37,6 +40,7 @@ const PostCard: React.FC<PostCardProps> = ({
   onFollowToggle,
   onViewProfile
 }) => {
+  const { t } = useTranslation();
   const [comments, setComments] = useState<Comment[]>(post.comments);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes);
@@ -45,10 +49,14 @@ const PostCard: React.FC<PostCardProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(post.content);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false); // For video playback
+  const [isPlaying, setIsPlaying] = useState(false); // For video playbook
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
   const [isTranslatingPost, setIsTranslatingPost] = useState(false);
   const [showPostTranslation, setShowPostTranslation] = useState(false);
+  const [commentLikes, setCommentLikes] = useState<{[key: string]: number}>({});
+  const [likedComments, setLikedComments] = useState<{[key: string]: boolean}>({});
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const [isLikeAnimating, setIsLikeAnimating] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close menu on outside click
@@ -105,6 +113,13 @@ const PostCard: React.FC<PostCardProps> = ({
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    
+    // Trigger animation
+    setIsLikeAnimating(true);
+  };
+
+  const handleAnimationComplete = () => {
+    setIsLikeAnimating(false);
   };
 
   const handleShare = () => {
@@ -117,11 +132,74 @@ const PostCard: React.FC<PostCardProps> = ({
     if (!newComment.trim()) return;
     const comment: Comment = {
       id: `c${Date.now()}`,
-      user: currentUser, // Use current user from props
+      user: currentUser,
       text: newComment.trim(),
     };
     setComments(prev => [...prev, comment]);
     setNewComment('');
+  };
+
+  const handleUpdateComment = (commentId: string, newText: string) => {
+    setComments(prev => prev.map(comment => 
+      comment.id === commentId 
+        ? { ...comment, text: newText }
+        : comment
+    ));
+  };
+
+  const handleDeleteComment = (commentId: string) => {
+    // Remove the comment and all its replies recursively
+    const removeCommentAndReplies = (comments: Comment[], targetId: string): Comment[] => {
+      return comments.filter(comment => {
+        if (comment.id === targetId) {
+          return false;
+        }
+        if (comment.parentId === targetId) {
+          return false;
+        }
+        return true;
+      });
+    };
+    
+    setComments(prev => {
+      let updatedComments = [...prev];
+      const toDelete = [commentId];
+      
+      // Find all replies to delete recursively
+      let foundMore = true;
+      while (foundMore) {
+        foundMore = false;
+        updatedComments.forEach(comment => {
+          if (comment.parentId && toDelete.includes(comment.parentId) && !toDelete.includes(comment.id)) {
+            toDelete.push(comment.id);
+            foundMore = true;
+          }
+        });
+      }
+      
+      return updatedComments.filter(comment => !toDelete.includes(comment.id));
+    });
+  };
+
+  const handleAddReply = (parentId: string, text: string) => {
+    const reply: Comment = {
+      id: `r${Date.now()}`,
+      user: currentUser,
+      text: text,
+      parentId: parentId,
+    };
+    setComments(prev => [...prev, reply]);
+  };
+
+  const handleCommentLike = (commentId: string) => {
+    setLikedComments(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
+    setCommentLikes(prev => ({
+      ...prev,
+      [commentId]: (prev[commentId] || 0) + (likedComments[commentId] ? -1 : 1)
+    }));
   };
 
   const handleSaveEdit = () => {
@@ -259,23 +337,26 @@ const PostCard: React.FC<PostCardProps> = ({
                 <div>
                    <button onClick={() => onViewProfile(post.user.id)} className="font-bold text-left hover:underline">{post.user.name}</button>
                    <div className="flex items-center space-x-1">
-                     <span className="text-gray-500 text-sm">@{post.user.handle}</span>
-                     <span className="text-gray-500 text-sm">· {post.createdAt}</span>
+                     <span className="text-gray-500 text-sm">· 
+                       {post.createdAt === '2h ago' ? t('hoursAgo') :
+                        post.createdAt === '5h ago' ? t('5hoursAgo') :
+                        post.createdAt === '1d ago' ? t('1dayAgo') :
+                        post.createdAt === '2d ago' ? t('2daysAgo') :
+                        post.createdAt === '3d ago' ? t('3daysAgo') :
+                        post.createdAt === 'Now' ? t('now') :
+                        post.createdAt === 'Just now' ? t('justNow') :
+                        post.createdAt}
+                     </span>
                    </div>
                 </div>
-                {post.user.id !== currentUserId && (
-                  isFollowed ? (
-                    <button onClick={() => onFollowToggle(post.user.id)} className="flex items-center justify-center text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
-                      <CheckIcon />
-                      <span className="ml-1">Following</span>
-                    </button>
-                  ) : (
-                    <button onClick={() => onFollowToggle(post.user.id)} className="text-sm px-3 py-1 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                      Follow
-                    </button>
-                  )
-                )}
               </div>
+            </div>
+            <div className="flex items-center">
+              {post.user.id !== currentUserId && !isFollowed && (
+                <button onClick={() => onFollowToggle(post.user.id)} className="text-sm px-3 py-1 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                  {t('follow')}
+                </button>
+              )}
             </div>
             {post.user.id === currentUserId ? (
               <div className="relative" ref={menuRef}>
@@ -285,10 +366,10 @@ const PostCard: React.FC<PostCardProps> = ({
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg z-20 border border-gray-200 dark:border-gray-700">
                     <button onClick={() => { setIsEditing(true); setIsMenuOpen(false); }} className="w-full text-left flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <EditIcon /> <span>Edit Post</span>
+                      <EditIcon /> <span>{t('editPost')}</span>
                     </button>
                     <button onClick={handleDelete} className="w-full text-left flex items-center space-x-2 px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <TrashIcon /> <span>Delete Post</span>
+                      <TrashIcon /> <span>{t('deletePost')}</span>
                     </button>
                   </div>
                 )}
@@ -305,8 +386,8 @@ const PostCard: React.FC<PostCardProps> = ({
                 rows={4}
               />
               <div className="flex justify-end space-x-2 mt-2">
-                <button onClick={handleCancelEdit} className="px-3 py-1 text-sm rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">Cancel</button>
-                <button onClick={handleSaveEdit} className="px-3 py-1 text-sm rounded-full bg-blue-500 text-white hover:bg-blue-600">Save</button>
+                <button onClick={handleCancelEdit} className="px-3 py-1 text-sm rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{t('cancel')}</button>
+                <button onClick={handleSaveEdit} className="px-3 py-1 text-sm rounded-full bg-blue-500 text-white hover:bg-blue-600">{t('save')}</button>
               </div>
             </div>
           ) : (
@@ -323,20 +404,13 @@ const PostCard: React.FC<PostCardProps> = ({
                     <button
                         onClick={handleTranslatePost}
                         disabled={isTranslatingPost}
-                        className="text-xs text-blue-500 mt-2 flex items-center space-x-1 disabled:opacity-50"
+                        className="text-xs text-blue-500 mt-2 disabled:opacity-50"
                     >
-                        {isTranslatingPost ? (
-                          <LoadingIcon className="animate-spin h-4 w-4 text-blue-500" />
-                        ) : (
-                          <TranslateIcon />
-                        )}
-                        <span>
-                            {isTranslatingPost
-                                ? 'Translating...'
-                                : showPostTranslation
-                                ? 'Hide Translation'
-                                : 'Translate'}
-                        </span>
+                        {isTranslatingPost
+                            ? t('translating')
+                            : showPostTranslation
+                            ? t('hideTranslation')
+                            : t('translate')}
                     </button>
                 </div>
               )}
@@ -345,11 +419,32 @@ const PostCard: React.FC<PostCardProps> = ({
           )}
 
           <div className="flex justify-between text-gray-500 mt-4">
-            <button onClick={handleLike} className="flex items-center space-x-1 hover:text-red-500 transition-colors">
-              {isLiked ? <LikeIconFilled className="text-red-500" /> : <LikeIcon />}
-              <span>{likeCount.toLocaleString()}</span>
+            <button 
+              onClick={handleLike} 
+              className="flex items-center space-x-1 hover:text-red-500 transition-colors group relative"
+            >
+              <div className={`relative transition-all duration-300 ease-out ${
+                isLikeAnimating ? 'scale-125' : 'group-hover:scale-110'
+              }`}>
+                {isLiked ? (
+                  <LikeIconFilled className="text-red-500 transition-all duration-200" />
+                ) : (
+                  <LikeIcon className="transition-all duration-200" />
+                )}
+                {/* 爆炸式粒子动画 */}
+                <LikeAnimation 
+                  isAnimating={isLikeAnimating} 
+                  onAnimationComplete={handleAnimationComplete}
+                />
+              </div>
+              <span className="transition-all duration-200">{likeCount.toLocaleString()}</span>
             </button>
-            <button className="flex items-center space-x-1 hover:text-blue-500 transition-colors">
+            <button 
+              onClick={() => setShowCommentInput(!showCommentInput)}
+              className={`flex items-center space-x-1 hover:text-blue-500 transition-colors ${
+                showCommentInput ? 'text-blue-500' : ''
+              }`}
+            >
               <CommentIcon />
               <span>{comments.length.toLocaleString()}</span>
             </button>
@@ -360,48 +455,58 @@ const PostCard: React.FC<PostCardProps> = ({
              {post.viewers && <span className="text-sm">{post.viewers.toLocaleString()} Viewers</span>}
           </div>
           
-          <div className="mt-4 space-y-4">
-            {comments.map(comment => (
-              <div key={comment.id} className="flex items-start space-x-3">
-                <img src={comment.user.avatar} alt={comment.user.name} className="w-8 h-8 rounded-full" />
-                <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
-                  <div className="flex items-center space-x-1 text-sm">
-                    <span className="font-bold">{comment.user.name}</span>
-                    <span className="text-gray-500">@{comment.user.handle}</span>
+          {showCommentInput && (
+            <div className="mt-4">
+              {/* Render top-level comments using the recursive CommentItem component */}
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {comments
+                .filter(comment => !comment.parentId) // Only show top-level comments
+                .map(comment => (
+                  <div key={comment.id} className="py-3 first:pt-0">
+                    <CommentItem
+                      comment={comment}
+                      currentUser={currentUser}
+                      currentUserId={currentUserId}
+                      allComments={comments}
+                      depth={0}
+                      onUpdateComment={handleUpdateComment}
+                      onDeleteComment={handleDeleteComment}
+                      onAddReply={handleAddReply}
+                      onTranslateComment={handleTranslateComment}
+                      onShowOriginal={handleShowOriginal}
+                      onViewProfile={onViewProfile}
+                      onLikeComment={handleCommentLike}
+                      commentLikes={commentLikes}
+                      likedComments={likedComments}
+                    />
                   </div>
-                  <p className="text-sm mt-1">{comment.translation || comment.text}</p>
-                   {comment.translation ? (
-                      <button onClick={() => handleShowOriginal(comment.id)} className="text-xs text-blue-500 mt-1">Show original</button>
-                    ) : (
-                      <button onClick={() => handleTranslateComment(comment.id, comment.text)} disabled={comment.isTranslating} className="text-xs text-blue-500 mt-1 flex items-center space-x-1 disabled:opacity-50">
-                        {comment.isTranslating ? <LoadingIcon className="animate-spin h-4 w-4 text-blue-500" /> : <TranslateIcon />}
-                        <span>Translate</span>
-                      </button>
-                    )}
-                </div>
-              </div>
-            ))}
-             <form onSubmit={handleCommentSubmit} className="flex items-center space-x-3 mt-4">
+                ))
+              }
+            </div>
+              
+              {/* Add new comment form */}
+              <form onSubmit={handleCommentSubmit} className="flex items-center space-x-3 mt-4">
                 <img src={currentUser.avatar} alt="My avatar" className="w-8 h-8 rounded-full" />
                 <div className="relative flex-1">
-                    <input
-                        type="text"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Add a comment..."
-                        className="w-full bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button 
-                        type="submit" 
-                        disabled={!newComment.trim()}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-blue-500 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:text-gray-400 disabled:hover:bg-transparent transition-colors"
-                        aria-label="Send comment"
-                    >
-                        <SendIcon />
-                    </button>
+                  <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder={t('addComment')}
+                    className="w-full bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={!newComment.trim()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-blue-500 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:text-gray-400 disabled:hover:bg-transparent transition-colors"
+                    aria-label="Send comment"
+                  >
+                    <SendIcon />
+                  </button>
                 </div>
-            </form>
-          </div>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>

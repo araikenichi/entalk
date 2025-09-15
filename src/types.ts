@@ -47,6 +47,8 @@ export interface Comment {
   originalText?: string;
   translation?: string;
   isTranslating?: boolean;
+  parentId?: string;
+  isEditing?: boolean;
 }
 
 export interface Post {

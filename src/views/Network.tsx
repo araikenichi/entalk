@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { users, mockCommunities, mockOpportunities } from '../constants';
 import { User, Community, Opportunity } from '../types';
 import { SparklesIcon, GroupIcon, BriefcaseIcon, CheckIcon, MessagesIcon } from '../../components/Icons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface NetworkProps {
   currentUser: User;
@@ -39,7 +40,11 @@ const UserCard: React.FC<{
     isFollowed: boolean;
     onFollowToggle: (userId: string) => void;
     onViewProfile: (userId: string) => void;
-}> = ({ user, isFollowed, onFollowToggle, onViewProfile }) => (
+}> = ({ user, isFollowed, onFollowToggle, onViewProfile }) => {
+    const { t } = useTranslation();
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [isMessageAnimating, setIsMessageAnimating] = useState(false);
+    return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-center text-center transition-transform hover:scale-105">
         <button onClick={() => onViewProfile(user.id)} className="w-20 h-20 rounded-full overflow-hidden">
           <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
@@ -56,22 +61,40 @@ const UserCard: React.FC<{
             {isFollowed ? (
                  <button onClick={() => onFollowToggle(user.id)} className="flex-1 flex items-center justify-center text-sm px-3 py-1.5 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
                     <CheckIcon />
-                    <span className="ml-1">Following</span>
+                    <span className="ml-1">{t('following')}</span>
                 </button>
             ) : (
                 <button onClick={() => onFollowToggle(user.id)} className="flex-1 text-sm px-3 py-1.5 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
-                    Follow
+                    {t('follow')}
                 </button>
             )}
-            <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                <MessagesIcon />
+            <button 
+                onClick={() => {
+                    setIsMessageAnimating(true);
+                    setTimeout(() => setIsMessageAnimating(false), 200);
+                }}
+                className={`p-2 border border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out ${
+                    isMessageAnimating 
+                        ? 'transform scale-110 shadow-lg bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600' 
+                        : 'transform scale-100 shadow-sm'
+                }`}
+                style={{
+                    opacity: isMessageAnimating ? 0.9 : 1,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+            >
+                <MessagesIcon className={`transition-transform duration-300 ${
+                    isMessageAnimating ? 'scale-110' : 'scale-100'
+                }`} />
             </button>
         </div>
-    </div>
-);
+     </div>
+    );
+};
 
 
 const CommunityCard: React.FC<{ community: Community }> = ({ community }) => {
+    const { t } = useTranslation();
     const [isJoined, setIsJoined] = useState(false);
     
     const relatedOpportunities = useMemo(() => 
@@ -113,7 +136,7 @@ const CommunityCard: React.FC<{ community: Community }> = ({ community }) => {
                 {relatedOpportunities.length > 0 && (
                      <div className="mt-2 text-xs text-blue-500 flex items-center">
                         <BriefcaseIcon className="w-4 h-4 mr-1" />
-                        <span className="ml-1">{relatedOpportunities.length} related opportunities</span>
+                        <span className="ml-1">{relatedOpportunities.length} {relatedOpportunities.length === 1 ? t('relatedOpportunity') : t('relatedOpportunities')}</span>
                     </div>
                 )}
 
@@ -121,14 +144,16 @@ const CommunityCard: React.FC<{ community: Community }> = ({ community }) => {
                     onClick={() => setIsJoined(!isJoined)}
                     className={`w-full mt-4 text-sm font-semibold py-2 rounded-full transition-colors ${isJoined ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                 >
-                    {isJoined ? 'Joined' : 'Join / 参加する'}
+                    {isJoined ? t('joined') : t('join')}
                 </button>
             </div>
         </div>
     );
 };
 
-const OpportunityCard: React.FC<{ opportunity: Opportunity }> = ({ opportunity }) => (
+const OpportunityCard: React.FC<{ opportunity: Opportunity }> = ({ opportunity }) => {
+    const { t } = useTranslation();
+    return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-shadow hover:shadow-xl flex flex-col">
         <div className="flex-1">
             <div className="flex justify-between items-start">
@@ -144,13 +169,15 @@ const OpportunityCard: React.FC<{ opportunity: Opportunity }> = ({ opportunity }
                     <span key={tag} className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{tag}</span>
                 ))}
             </div>
-            <button className="text-sm font-semibold text-blue-500 hover:underline">View</button>
+            <button className="text-sm font-semibold text-blue-500 hover:underline">{t('view')}</button>
         </div>
     </div>
-);
+    );
+};
 
 
 const Network: React.FC<NetworkProps> = ({ currentUser, currentUserId, followedUserIds, onFollowToggle, onViewProfile }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<ActiveTab>('communities');
   const [communitySort, setCommunitySort] = useState<CommunitySort>('recommended');
 
@@ -180,18 +207,18 @@ const Network: React.FC<NetworkProps> = ({ currentUser, currentUserId, followedU
 
   return (
     <div className="bg-gray-100 dark:bg-black min-h-screen">
-      <h1 className="text-xl font-bold p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">Network</h1>
+      <h1 className="text-xl font-bold p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">{t('network')}</h1>
       
       <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex">
-        <TabButton label="Connections" icon={<SparklesIcon />} isActive={activeTab === 'connections'} onClick={() => setActiveTab('connections')} />
-        <TabButton label="Communities" icon={<GroupIcon />} isActive={activeTab === 'communities'} onClick={() => setActiveTab('communities')} />
-        <TabButton label="Opportunities" icon={<BriefcaseIcon />} isActive={activeTab === 'opportunities'} onClick={() => setActiveTab('opportunities')} />
+        <TabButton label={t('connections')} icon={<SparklesIcon />} isActive={activeTab === 'connections'} onClick={() => setActiveTab('connections')} />
+        <TabButton label={t('communities')} icon={<GroupIcon />} isActive={activeTab === 'communities'} onClick={() => setActiveTab('communities')} />
+        <TabButton label={t('opportunities')} icon={<BriefcaseIcon />} isActive={activeTab === 'opportunities'} onClick={() => setActiveTab('opportunities')} />
       </div>
 
       <div className="p-4">
         {activeTab === 'connections' && (
           <div>
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">AI-Powered Recommendations</h2>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">{t('aiRecommendations')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {recommendedUsers.map(user => (
                 <UserCard 
@@ -209,12 +236,12 @@ const Network: React.FC<NetworkProps> = ({ currentUser, currentUserId, followedU
         {activeTab === 'communities' && (
            <div>
             <div className="flex items-center justify-between mb-4">
-                 <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex-shrink-0 pr-2">Discover Communities</h2>
+                 <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex-shrink-0 pr-2">{t('discoverCommunities')}</h2>
                  <div className="flex-1 overflow-x-auto">
                     <div className="flex space-x-1 bg-gray-200 dark:bg-gray-800 p-1 rounded-full text-sm w-max ml-auto">
-                        <button onClick={() => setCommunitySort('recommended')} className={`px-3 py-1 rounded-full whitespace-nowrap ${communitySort === 'recommended' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}>Recommended</button>
-                        <button onClick={() => setCommunitySort('popular')} className={`px-3 py-1 rounded-full whitespace-nowrap ${communitySort === 'popular' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}>Popular</button>
-                        <button onClick={() => setCommunitySort('newest')} className={`px-3 py-1 rounded-full whitespace-nowrap ${communitySort === 'newest' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}>Newest</button>
+                        <button onClick={() => setCommunitySort('recommended')} className={`px-3 py-1 rounded-full whitespace-nowrap ${communitySort === 'recommended' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}>{t('recommended')}</button>
+                        <button onClick={() => setCommunitySort('popular')} className={`px-3 py-1 rounded-full whitespace-nowrap ${communitySort === 'popular' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}>{t('popular')}</button>
+                        <button onClick={() => setCommunitySort('newest')} className={`px-3 py-1 rounded-full whitespace-nowrap ${communitySort === 'newest' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}>{t('newest')}</button>
                     </div>
                  </div>
             </div>
@@ -223,7 +250,7 @@ const Network: React.FC<NetworkProps> = ({ currentUser, currentUserId, followedU
                 <div className="mb-6">
                     <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
                         <SparklesIcon className="w-5 h-5 text-blue-500 mr-2" />
-                        AI Recommended For You
+                        {t('aiRecommendedForYou')}
                     </h3>
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {aiRecommendedCommunities.map(community => (

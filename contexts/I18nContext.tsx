@@ -11,7 +11,7 @@ type AllTranslations = { [key in Locale]: Translations };
 interface I18nContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: { [key: string]: string }) => string;
 }
 
 export const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -28,9 +28,17 @@ const allTranslations: AllTranslations = { en, zh, ja };
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [locale, setLocale] = useState<Locale>(getInitialLocale);
 
-  const t = useCallback((key: string): string => {
+  const t = useCallback((key: string, params?: { [key: string]: string }): string => {
     const langFile = allTranslations[locale];
-    return langFile?.[key] || key;
+    let translation = langFile?.[key] || key;
+    
+    if (params) {
+      Object.keys(params).forEach(paramKey => {
+        translation = translation.replace(`{${paramKey}}`, params[paramKey]);
+      });
+    }
+    
+    return translation;
   }, [locale]);
 
   return (
