@@ -1,22 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import { I18nProvider } from '../contexts/I18nContext';
-import { BrowserRouter } from 'react-router-dom'; // ← 追加！
+import './index.css'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+const root = document.getElementById('root')!
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
+createRoot(root).render(
   <React.StrictMode>
-    <I18nProvider>
-      <BrowserRouter basename="/nchat"> {/* ← 追加！ */}
-        <App />
-      </BrowserRouter>
-    </I18nProvider>
+    <BrowserRouter basename="/nchat">
+      <App />
+    </BrowserRouter>
   </React.StrictMode>
-);
-
+)
